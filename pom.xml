@@ -178,8 +178,26 @@
 				<version>3.8.1</version>
 
 				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
 					<release>1.8</release>
 				</configuration>
+				<executions>
+					<execution>
+						<id>compile-java8</id>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<source>1.8</source>
+							<target>1.8</target>
+							<release combine.self="override" />
+							<compileSourceRoots>
+								<compileSourceRoot>${project.basedir}/src/main/java8</compileSourceRoot>
+							</compileSourceRoots>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

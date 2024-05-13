@@ -62,9 +62,9 @@ jobs:
       with:
         name: windows
         path: |
-          RuneLiteSetup.exe
-          RuneLiteSetup32.exe
-          RuneLiteSetupAArch64.exe
+          OpenRuneSetup.exe
+          OpenRuneSetup32.exe
+          OpenRuneSetupAArch64.exe
         if-no-files-found: error
   linux:
     runs-on: ubuntu-20.04
@@ -100,14 +100,14 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: jar
-        path: target/RuneLite.jar
+        path: target/OpenRune.jar
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:
         name: linux
         path: |
-          RuneLite.AppImage
-          RuneLite-aarch64.AppImage
+          OpenRune.AppImage
+          OpenRune-aarch64.AppImage
         if-no-files-found: error
   macos:
     runs-on: macos-11
@@ -153,13 +153,13 @@ jobs:
       run: ./build-osx-aarch64.sh --build --dmg
     # tar app to keep permissions correct
     - name: tar app
-      run: tar -cf app.tar build/macos-x64/RuneLite.app build/macos-aarch64/RuneLite.app build-osx-x64.sh build-osx-aarch64.sh osx/signing.entitlements
+      run: tar -cf app.tar build/macos-x64/OpenRune.app build/macos-aarch64/OpenRune.app build-osx-x64.sh build-osx-aarch64.sh osx/signing.entitlements
     - uses: actions/upload-artifact@v4
       with:
         name: macos-dmg
         path: |
-          RuneLite-x64.dmg
-          RuneLite-aarch64.dmg
+          OpenRune-x64.dmg
+          OpenRune-aarch64.dmg
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:

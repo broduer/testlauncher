@@ -24,7 +24,6 @@
  */
 package net.runelite.launcher;
 
-import com.google.common.base.MoreObjects;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -35,11 +34,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
@@ -69,9 +69,10 @@ public class FatalErrorDialog extends JDialog
 
 	public FatalErrorDialog(String message)
 	{
+		String finalMessage = message.replace("{name}", LauncherProperties.getApplicationName()).replace("{link}", LauncherProperties.getWebsiteLink()).replace("{types}", LauncherProperties.getRuneliteTypeManifest());
 		if (alreadyOpen.getAndSet(true))
 		{
-			throw new IllegalStateException("Fatal error during fatal error: " + message);
+			throw new IllegalStateException("Fatal error during fatal error: " + finalMessage);
 		}
 
 		try
@@ -84,17 +85,11 @@ public class FatalErrorDialog extends JDialog
 
 		UIManager.put("Button.select", DARKER_GRAY_COLOR);
 
-		try (InputStream in = FatalErrorDialog.class.getResourceAsStream("runelite_128.png"))
+		try
 		{
-			setIconImage(ImageIO.read(in));
-		}
-		catch (IOException e)
-		{
-		}
+			BufferedImage logo = ImageIO.read(SplashScreen.class.getResourceAsStream("runelite_transparent.png"));
+			setIconImage(logo);
 
-		try (InputStream in = FatalErrorDialog.class.getResourceAsStream("runelite_splash.png"))
-		{
-			BufferedImage logo = ImageIO.read(in);
 			JLabel runelite = new JLabel();
 			runelite.setIcon(new ImageIcon(logo));
 			runelite.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -115,7 +110,7 @@ public class FatalErrorDialog extends JDialog
 			}
 		});
 
-		setTitle("Fatal error starting OpenRune");
+		setTitle("Fatal error starting " + LauncherProperties.getApplicationName());
 		setLayout(new BorderLayout());
 
 		Container pane = getContentPane();
@@ -125,14 +120,14 @@ public class FatalErrorDialog extends JDialog
 		leftPane.setBackground(DARKER_GRAY_COLOR);
 		leftPane.setLayout(new BorderLayout());
 
-		JLabel title = new JLabel("There was a fatal error starting OpenRune");
+		JLabel title = new JLabel("There was a fatal error starting " + LauncherProperties.getApplicationName());
 		title.setForeground(Color.WHITE);
 		title.setFont(font.deriveFont(16.f));
 		title.setBorder(new EmptyBorder(10, 10, 10, 10));
 		leftPane.add(title, BorderLayout.NORTH);
 
 		leftPane.setPreferredSize(new Dimension(400, 200));
-		JTextArea textArea = new JTextArea(message);
+		JTextArea textArea = new JTextArea(finalMessage);
 		textArea.setFont(font);
 		textArea.setBackground(DARKER_GRAY_COLOR);
 		textArea.setForeground(Color.LIGHT_GRAY);
@@ -163,7 +158,7 @@ public class FatalErrorDialog extends JDialog
 		addButton("Exit", () -> System.exit(-1));
 
 		pack();
-		SplashScreen.stop();
+		Launcher.close();
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
@@ -204,53 +199,36 @@ public class FatalErrorDialog extends JDialog
 		return this;
 	}
 
-	public static void showWindow(String message)
-	{
-		new FatalErrorDialog(message).open();
-	}
-
-
 	public static void showNetErrorWindow(String action, Throwable err)
 	{
+		if (Objects.equals(err.getMessage(), "No Clients Found"))
+		{
+			new FatalErrorDialog("{name} was unable to find any clients to display please contact us to get this fixed {types}")
+				.open();
+			return;
+		}
 		if (err instanceof VerificationException || err instanceof GeneralSecurityException)
 		{
-			new FatalErrorDialog(formatExceptionMessage("OpenRune was unable to verify the security of its connection to the internet while " +
+			new FatalErrorDialog("{name} was unable to verify the security of its connection to the internet while " +
 				action + ". You may have a misbehaving antivirus, internet service provider, a proxy, or an incomplete" +
-				" java installation.", err))
+				" java installation.")
 				.open();
 			return;
 		}
 
-		if (err instanceof SocketException) // includes ConnectException
+		if (err instanceof SocketException)
 		{
-			String message = "OpenRune is unable to connect to a required server while " + action + ".";
-
-			// hardcoded error message from PlainSocketImpl.c for WSAEADDRNOTAVAIL
-			if (err.getMessage().equals("connect: Address is invalid on local machine, or port is not valid on remote machine"))
-			{
-				message += " Cannot assign requested address. This error is most commonly caused by \"split tunneling\" support in VPN software." +
-					" If you are using a VPN, try turning \"split tunneling\" off.";
-			}
-			// WSAEACCES error formatted by NET_ThrowNew()
-			else if (err.getMessage().equals("Permission denied: connect"))
-			{
-				message += " Your internet access is blocked. Firewall or antivirus software may have blocked the connection.";
-			}
-			else
-			{
-				message += " Please check your internet connection.";
-			}
-
-			new FatalErrorDialog(formatExceptionMessage(message, err))
+			new FatalErrorDialog("{name} is unable to connect to a required server while " + action + ". " +
+				"Please check your internet connection")
 				.open();
 			return;
 		}
 
 		if (err instanceof UnknownHostException)
 		{
-			new FatalErrorDialog(formatExceptionMessage("OpenRune is unable to resolve the address of a required server while " + action + ". " +
+			new FatalErrorDialog("{name} is unable to resolve the address of a required server while " + action + ". " +
 				"Your DNS resolver may be misconfigured, pointing to an inaccurate resolver, or your internet connection may " +
-				"be down.", err))
+				"be down. ")
 				.addButton("Change your DNS resolver", () -> LinkBrowser.browse(LauncherProperties.getDNSChangeLink()))
 				.open();
 			return;
@@ -260,29 +238,20 @@ public class FatalErrorDialog extends JDialog
 		{
 			if (err.getCause() instanceof CertificateException)
 			{
-				new FatalErrorDialog(formatExceptionMessage("OpenRune was unable to verify the certificate of a required server while " + action + ". " +
-					"This can be caused by a firewall, antivirus, malware, misbehaving internet service provider, or a proxy.", err))
+				new FatalErrorDialog("{name} was unable to verify the certificate of a required server while " + action + ". " +
+					"This can be caused by a firewall, antivirus, malware, misbehaving internet service provider, or a proxy.")
 					.open();
 			}
 			else
 			{
-				new FatalErrorDialog(formatExceptionMessage("OpenRune was unable to establish a SSL/TLS connection with a required server while " + action + ". " +
-					"This can be caused by a firewall, antivirus, malware, misbehaving internet service provider, or a proxy.", err))
+				new FatalErrorDialog("{name} was unable to establish a SSL/TLS connection with a required server while " + action + ". " +
+					"This can be caused by a firewall, antivirus, malware, misbehaving internet service provider, or a proxy.")
 					.open();
 			}
 
 			return;
 		}
 
-		new FatalErrorDialog(formatExceptionMessage("OpenRune encountered a fatal error while " + action + ".", err)).open();
-	}
-
-	private static String formatExceptionMessage(String message, Throwable err)
-	{
-		String nl = System.getProperty("line.separator");
-		return message + nl
-			+ nl
-			+ "Exception: " + err.getClass().getSimpleName() + nl
-			+ "Message: " + MoreObjects.firstNonNull(err.getMessage(), "n/a");
+		new FatalErrorDialog("{name} encountered a fatal error while " + action + ".").open();
 	}
 }

@@ -31,7 +31,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
@@ -50,8 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SplashScreen extends JFrame implements ActionListener
 {
-	private static final Color BRAND_ORANGE = new Color(220, 138, 0);
-	private static final Color DARKER_GRAY_COLOR = new Color(30, 30, 30);
 
 	private static final int WIDTH = 200;
 	private static final int PAD = 10;
@@ -70,25 +67,23 @@ public class SplashScreen extends JFrame implements ActionListener
 
 	private SplashScreen() throws IOException
 	{
-		setTitle("OpenRune Launcher");
-
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setUndecorated(true);
-		try (InputStream in = SplashScreen.class.getResourceAsStream("runelite_128.png"))
-		{
-			setIconImage(ImageIO.read(in));
-		}
-		setLayout(null);
-		Container pane = getContentPane();
-		pane.setBackground(DARKER_GRAY_COLOR);
-
-		Font font = new Font(Font.DIALOG, Font.PLAIN, 12);
-
 		BufferedImage logo;
-		try (InputStream in = SplashScreen.class.getResourceAsStream("runelite_splash.png"))
+		try (var in = SplashScreen.class.getResourceAsStream("runelite_transparent.png"))
 		{
 			logo = ImageIO.read(in);
 		}
+
+		setTitle(LauncherProperties.getApplicationName() + " Launcher");
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setUndecorated(true);
+		setIconImage(logo);
+		setLayout(null);
+		Container pane = getContentPane();
+		pane.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+
+		Font font = new Font(Font.DIALOG, Font.PLAIN, 12);
+
 		JLabel logoLabel = new JLabel(new ImageIcon(logo));
 		pane.add(logoLabel);
 		logoLabel.setBounds(0, 0, WIDTH, WIDTH);
@@ -103,8 +98,8 @@ public class SplashScreen extends JFrame implements ActionListener
 		y += action.getHeight() + PAD;
 
 		pane.add(progress);
-		progress.setForeground(BRAND_ORANGE);
-		progress.setBackground(BRAND_ORANGE.darker().darker());
+		progress.setForeground(ColorScheme.BRAND);
+		progress.setBackground(ColorScheme.BRAND.darker().darker());
 		progress.setBorder(new EmptyBorder(0, 0, 0, 0));
 		progress.setBounds(0, y, WIDTH, 14);
 		progress.setFont(font);

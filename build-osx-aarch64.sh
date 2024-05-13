@@ -2,7 +2,7 @@
 
 set -e
 
-APPBASE="build/macos-aarch64/OpenRune.app"
+APPBASE="build/macos-aarch64/Elvarg.app"
 
 build() {
     pushd native
@@ -23,8 +23,8 @@ build() {
 
     mkdir -p $APPBASE/Contents/{MacOS,Resources}
 
-    cp native/build-aarch64/src/OpenRune $APPBASE/Contents/MacOS/
-    cp target/OpenRune.jar $APPBASE/Contents/Resources/
+    cp native/build-aarch64/src/Elvarg $APPBASE/Contents/MacOS/
+    cp target/Elvarg.jar $APPBASE/Contents/Resources/
     cp packr/macos-aarch64-config.json $APPBASE/Contents/Resources/config.json
     cp target/filtered-resources/Info.plist $APPBASE/Contents/
     cp osx/app.icns $APPBASE/Contents/Resources/icons.icns
@@ -33,12 +33,12 @@ build() {
     mkdir $APPBASE/Contents/Resources/jre
     mv jdk-$MAC_AARCH64_VERSION-jre/Contents/Home/* $APPBASE/Contents/Resources/jre
 
-    echo Setting world execute permissions on OpenRune
+    echo Setting world execute permissions on Elvarg
     pushd $APPBASE
-    chmod g+x,o+x Contents/MacOS/OpenRune
+    chmod g+x,o+x Contents/MacOS/Elvarg
     popd
 
-    otool -l $APPBASE/Contents/MacOS/OpenRune
+    otool -l $APPBASE/Contents/MacOS/Elvarg
 }
 
 dmg() {
@@ -47,24 +47,24 @@ dmg() {
 
     # create-dmg exits with an error code due to no code signing, but is still okay
     create-dmg $APPBASE . || true
-    mv OpenRune\ *.dmg OpenRune-aarch64.dmg
+    mv Elvarg\ *.dmg Elvarg-aarch64.dmg
 
     # dump for CI
-    hdiutil imageinfo OpenRune-aarch64.dmg
+    hdiutil imageinfo Elvarg-aarch64.dmg
 
-    if ! hdiutil imageinfo OpenRune-aarch64.dmg | grep -q "Format: ULFO" ; then
+    if ! hdiutil imageinfo Elvarg-aarch64.dmg | grep -q "Format: ULFO" ; then
         echo Format of dmg is not ULFO
         exit 1
     fi
 
-    if ! hdiutil imageinfo OpenRune-aarch64.dmg | grep -q "Apple_HFS" ; then
+    if ! hdiutil imageinfo Elvarg-aarch64.dmg | grep -q "Apple_HFS" ; then
         echo Filesystem of dmg is not Apple_HFS
         exit 1
     fi
 
     # Notarize app
-    if xcrun notarytool submit OpenRune-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-        xcrun stapler staple OpenRune-aarch64.dmg
+    if xcrun notarytool submit Elvarg-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
+        xcrun stapler staple Elvarg-aarch64.dmg
     fi
 }
 

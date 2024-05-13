@@ -29,9 +29,9 @@
 
 	<groupId>net.runelite</groupId>
 	<artifactId>launcher</artifactId>
-	<version>2.7.2-SNAPSHOT</version>
-	<name>OpenRune Launcher</name>
-	<description>Launcher for OpenRune client</description>
+	<version>1.0</version>
+	<name>Elvarg Launcher</name>
+	<description>Launcher for Elvarg client</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -152,22 +152,16 @@
 	</dependencies>
 
 	<build>
-		<finalName>OpenRune</finalName>
+		<finalName>Elvarg</finalName>
 
 		<resources>
 			<resource>
-				<directory>src/main/resources</directory>
-				<excludes>
-					<exclude>logback.xml</exclude>
-				</excludes>
-				<filtering>true</filtering>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>logback.xml</include>
-				</includes>
+				<targetPath>${basedir}/target/classes/net/runelite/launcher/</targetPath>
 				<filtering>false</filtering>
+				<directory>${basedir}/src/main/resources/net/runelite/launcher/</directory>
+				<includes>
+					<include>*</include>
+				</includes>
 			</resource>
 		</resources>
 
@@ -177,7 +171,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<release>8</release>
+					<release>11</release>
 					<compilerArgs>
 						<arg>-h</arg>
 						<arg>target/headers</arg>
@@ -282,7 +276,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
 				<groupId>net.runelite.maven</groupId>
 				<artifactId>dependency-lock-plugin</artifactId>

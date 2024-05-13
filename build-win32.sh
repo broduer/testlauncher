@@ -21,18 +21,18 @@ fi
 
 echo "$WIN32_CHKSUM win32_jre.zip" | sha256sum -c
 
-cp native/build-x86/src/Release/OpenRune.exe build/win-x86/
-cp target/OpenRune.jar build/win-x86/
+cp native/build-x86/src/Release/Elvarg.exe build/win-x86/
+cp target/Elvarg.jar build/win-x86/
 cp packr/win-x86-config.json build/win-x86/config.json
 cp liblauncher/build32/Release/launcher_x86.dll build/win-x86/
 
 unzip win32_jre.zip
 mv jdk-$WIN32_VERSION-jre build/win-x86/jre
 
-echo OpenRune.exe 32bit sha256sum
-sha256sum build/win-x86/OpenRune.exe
+echo Elvarg.exe 32bit sha256sum
+sha256sum build/win-x86/Elvarg.exe
 
-dumpbin //HEADERS build/win-x86/OpenRune.exe
+dumpbin //HEADERS build/win-x86/Elvarg.exe
 
 # We use the filtered iss file
 iscc target/filtered-resources/app32.iss

@@ -25,10 +25,10 @@ echo "$LINUX_AARCH64_CHKSUM linux_aarch64_jre.tar.gz" | sha256sum -c
 # Note: Host umask may have checked out this directory with g/o permissions blank
 chmod -R u=rwX,go=rX appimage
 # ...ditto for the build process
-chmod 644 target/OpenRune.jar
+chmod 644 target/Elvarg.jar
 
-cp native/build-aarch64/src/OpenRune build/linux-aarch64/
-cp target/OpenRune.jar build/linux-aarch64/
+cp native/build-aarch64/src/Elvarg build/linux-aarch64/
+cp target/Elvarg.jar build/linux-aarch64/
 cp packr/linux-aarch64-config.json build/linux-aarch64/config.json
 cp target/filtered-resources/app.desktop build/linux-aarch64/
 cp appimage/app.png build/linux-aarch64/
@@ -40,11 +40,11 @@ pushd build/linux-aarch64
 mkdir -p jre/lib/amd64/server/
 ln -s ../../server/libjvm.so jre/lib/amd64/server/ # packr looks for libjvm at this hardcoded path
 
-# Symlink AppRun -> OpenRune
-ln -s OpenRune AppRun
+# Symlink AppRun -> RuneLite
+ln -s Elvarg AppRun
 
-# Ensure OpenRune is executable to all users
-chmod 755 OpenRune
+# Ensure RuneLite is executable to all users
+chmod 755 Elvarg
 popd
 
 if ! [ -f appimagetool-x86_64.AppImage ] ; then
@@ -65,4 +65,4 @@ echo "d2624ce8cc2c64ef76ba986166ad67f07110cdbf85112ace4f91611bc634c96a  runtime-
 ARCH=arm_aarch64 ./appimagetool-x86_64.AppImage \
 	--runtime-file runtime-aarch64  \
 	build/linux-aarch64/ \
-	OpenRune-aarch64.AppImage
+	Elvarg-aarch64.AppImage

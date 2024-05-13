@@ -47,12 +47,7 @@ class JvmLauncher
 
 	private static String getJava() throws FileNotFoundException
 	{
-
 		Path javaHome = Paths.get(System.getProperty("java.home"));
-
-		if (!Launcher.forcedJava.isEmpty()) {
-			javaHome = Paths.get(Launcher.forcedJava);
-		}
 
 		if (!Files.exists(javaHome))
 		{
@@ -75,14 +70,14 @@ class JvmLauncher
 	}
 
 	static void launch(
-		Bootstrap bootstrap,
-		List<File> classpath,
-		Collection<String> clientArgs,
-		Map<String, String> jvmProps,
-		List<String> jvmArgs) throws IOException
+			Bootstrap bootstrap,
+			List<File> classpath,
+			Collection<String> clientArgs,
+			Map<String, String> jvmProps,
+			List<String> jvmArgs,String type) throws IOException
 	{
 		StringBuilder classPath = new StringBuilder();
-		for (File f : classpath)
+		for (var f : classpath)
 		{
 			if (classPath.length() > 0)
 			{
@@ -119,7 +114,7 @@ class JvmLauncher
 		}
 		arguments.addAll(jvmArgs);
 
-		arguments.add(LauncherProperties.getMain());
+		arguments.add(Launcher.clientTypes.get(type).getMain());
 		arguments.addAll(clientArgs);
 
 		logger.info("Running {}", arguments);
@@ -130,7 +125,7 @@ class JvmLauncher
 
 		if (log.isDebugEnabled())
 		{
-			SplashScreen.stop();
+			Launcher.close();
 
 			try
 			{

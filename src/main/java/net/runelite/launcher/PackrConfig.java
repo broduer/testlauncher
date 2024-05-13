@@ -28,12 +28,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -49,7 +45,7 @@ class PackrConfig
 	// Update the packr config
 	static void updateLauncherArgs(Bootstrap bootstrap)
 	{
-		OS.OSType os = OS.getOs();
+		var os = OS.getOs();
 		if (os != OS.OSType.Windows && os != OS.OSType.MacOS)
 		{
 			return;
@@ -62,8 +58,8 @@ class PackrConfig
 		}
 
 		Gson gson = new GsonBuilder()
-			.setPrettyPrinting()
-			.create();
+				.setPrettyPrinting()
+				.create();
 		Map config;
 		try (FileInputStream fin = new FileInputStream(configFile))
 		{
@@ -95,11 +91,11 @@ class PackrConfig
 
 		try
 		{
-			File tmpFile = File.createTempFile("runelite", null);
+			File tmpFile = File.createTempFile(LauncherProperties.getApplicationName().toLowerCase(), null);
 
 			try (FileOutputStream fout = new FileOutputStream(tmpFile);
-				FileChannel channel = fout.getChannel();
-				OutputStreamWriter writer = new OutputStreamWriter(fout, StandardCharsets.UTF_8))
+				 FileChannel channel = fout.getChannel();
+				 OutputStreamWriter writer = new OutputStreamWriter(fout, StandardCharsets.UTF_8))
 			{
 				channel.lock();
 				gson.toJson(config, writer);

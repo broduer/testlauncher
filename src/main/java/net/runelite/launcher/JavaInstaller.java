@@ -1,5 +1,6 @@
 package net.runelite.launcher;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -178,7 +179,7 @@ public class JavaInstaller {
                 md.update(buffer, 0, bytesRead);
             }
             byte[] digest = md.digest();
-            String actualChecksum = javax.xml.bind.DatatypeConverter.printHexBinary(digest).toLowerCase();
+            String actualChecksum = DatatypeConverter.printHexBinary(digest).toLowerCase();
             return actualChecksum.equals(expectedChecksum.toLowerCase());
         } catch (Exception e) {
             e.printStackTrace();

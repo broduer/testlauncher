@@ -179,8 +179,6 @@
 
 				<configuration>
 					<release>1.8</release>
-					<source>1.8</source>
-					<target>1.8</target>
 					<compilerArgs>
 						<arg>-h</arg>
 						<arg>target/headers</arg>
